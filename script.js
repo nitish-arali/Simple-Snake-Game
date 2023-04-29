@@ -2,21 +2,21 @@ const playBoard = document.querySelector(".play-board");
 const scoreElement = document.querySelector(".score");
 const highScoreElement = document.querySelector(".high-score");
 
+let gameOver = false;
 let foodX, foodY;
 let snakeX = 5,
   snakeY = 10;
 let velocityX = 0,
   velocityY = 0;
 let snakeBody = [];
-let gameOver = false;
 let setIntervalId;
 let score = 0;
 
 //getting high score from the local storage
 let highScore = localStorage.getItem("high-score") || 0;
-highScoreElement.innerText = `High Score: ${highScore}`; 
+highScoreElement.innerText = `High Score: ${highScore}`;
 
-const changeFoodPosition = () => {
+const UpdateFoodPosition = () => {
   //Passing a random 1-30 value as food position
   foodX = Math.floor(Math.random() * 30) + 1;
   foodY = Math.floor(Math.random() * 30) + 1;
@@ -52,7 +52,7 @@ const initGame = () => {
 
   //checking if the snake ate the food
   if (snakeX === foodX && snakeY === foodY) {
-    changeFoodPosition();
+    UpdateFoodPosition();
     snakeBody.push([foodX, foodY]); //pushing food position to snake body array
     score++; //incrementing score by 1
 
@@ -60,23 +60,23 @@ const initGame = () => {
     localStorage.setItem("high-score", highScore);
     scoreElement.innerText = `Score: ${score}`;
     highScoreElement.innerText = `High Score: ${highScore}`;
-
   }
+  
+  //updating the snake's head  position based on the current velocity
+  snakeX += velocityX;
+  snakeY += velocityY;
 
-  for (let i = snakeBody.length - 1; i < 0; i--) {
+  for (let i = snakeBody.length - 1; i > 0; i--) {
     //shifting forward the values of the elements in the snake body by one
     snakeBody[i] = snakeBody[i - 1];
   }
 
   snakeBody[0] = [snakeX, snakeY]; //setting first element of snake body to current snake position
 
-  //updating the snake's head  position based on the current velocity
-  snakeX += velocityX;
-  snakeY += velocityY;
 
   //checking if the snake's head is out of the wall, if so setting gameOver to true
   if (snakeX <= 0 || snakeX > 30 || snakeY <= 0 || snakeY > 30) {
-    gameOver = true;
+    return gameOver = true;
   }
 
   for (let i = 0; i < snakeBody.length; i++) {
@@ -94,6 +94,6 @@ const initGame = () => {
 
   playBoard.innerHTML = htmlMarkup;
 };
-changeFoodPosition();
+UpdateFoodPosition();
 setIntervalId = setInterval(initGame, 200);
 document.addEventListener("keydown", changeDirection);
